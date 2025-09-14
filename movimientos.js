@@ -20,13 +20,17 @@ const tablaMovimientos = document.getElementById('tabla-movimientos');
 
 // --- CARGAR PRODUCTOS EN EL SELECTOR ---
 const cargarProductos = async () => {
-    const snapshot = await db.collection('productos').orderBy('nombre').get();
-    let html = '<option value="">Seleccione un producto...</option>';
-    snapshot.forEach(doc => {
-        const producto = doc.data();
-        html += `<option value="${doc.id}">${producto.nombre}</option>`;
-    });
-    selectorProducto.innerHTML = html;
+    try {
+        const snapshot = await db.collection('productos').orderBy('nombre').get();
+        let html = '<option value="">Seleccione un producto...</option>';
+        snapshot.forEach(doc => {
+            const producto = doc.data();
+            html += `<option value="${doc.id}">${producto.nombre} (Stock: ${producto.stock})</option>`;
+        });
+        selectorProducto.innerHTML = html;
+    } catch (error) {
+        console.error("Error cargando productos: ", error);
+    }
 };
 
 // --- MOSTRAR HISTORIAL DE MOVIMIENTOS ---
@@ -38,9 +42,8 @@ db.collection('movimientos').orderBy('fecha', 'desc').onSnapshot(snapshot => {
     }
     snapshot.forEach(doc => {
         const mov = doc.data();
-        const fecha = mov.fecha.toDate().toLocaleString('es-ES');
+        const fecha = mov.fecha ? mov.fecha.toDate().toLocaleString('es-ES') : 'Fecha no disponible';
         const tipoClase = mov.tipo === 'Entrada' ? 'text-green-600' : 'text-red-600';
-        
         html += `
             <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${fecha}</td>
@@ -65,43 +68,60 @@ movimientoForm.addEventListener('submit', async (e) => {
     const productoNombre = selectorProducto.options[selectorProducto.selectedIndex].text;
 
     if (!productoId || !cantidad || !responsable) {
-        alert('Por favor, complete todos los campos.');
+        Swal.fire({ icon: 'error', title: 'Oops...', text: 'Por favor, complete todos los campos.' });
         return;
     }
 
     try {
-        // Usamos una transacción en lote (Batched Write) para asegurar que ambas operaciones se completen
         const batch = db.batch();
-
-        // 1. Crear el nuevo documento de movimiento
         const movimientoRef = db.collection('movimientos').doc();
         batch.set(movimientoRef, {
-            productoId: productoId,
-            productoNombre: productoNombre,
-            tipo: tipo,
-            cantidad: cantidad,
-            responsable: responsable,
+            productoId,
+            productoNombre,
+            tipo,
+            cantidad,
+            responsable,
             fecha: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // 2. Actualizar el stock del producto
         const productoRef = db.collection('productos').doc(productoId);
         const cantidadActualizar = tipo === 'Entrada' ? cantidad : -cantidad;
         batch.update(productoRef, { 
             stock: firebase.firestore.FieldValue.increment(cantidadActualizar) 
         });
         
-        // Ejecutar el lote de operaciones
         await batch.commit();
 
-        console.log('Movimiento registrado y stock actualizado.');
+        // *** MEJORA: Notificación "Toast" de éxito ***
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+        });
+        Toast.fire({ icon: 'success', title: '¡Movimiento registrado!' });
+        
         movimientoForm.reset();
 
     } catch (error) {
         console.error("Error al registrar el movimiento: ", error);
-        alert("Error: No se pudo registrar el movimiento. Revise el stock si intenta hacer una salida.");
+        // *** MEJORA: Alerta de error con SweetAlert2 ***
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo registrar el movimiento. Revise el stock si intenta hacer una salida.'
+        });
     }
 });
 
 // Cargar los productos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', cargarProductos);
+
+// --- LÓGICA PARA EL MENÚ RESPONSIVE ---
+const sidebar = document.getElementById('sidebar');
+const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+mobileMenuButton.addEventListener('click', () => {
+    sidebar.classList.toggle('-translate-x-full');
+});
