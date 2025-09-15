@@ -12,83 +12,103 @@ const firebaseConfig = {
 // Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db = firebase.firestore();
 
-const loginForm = document.getElementById('login-form');
-const toggleRegisterLink = document.getElementById('toggle-register');
+// --- REFERENCIAS AL DOM ---
+const authForm = document.getElementById('auth-form');
+const toggleLink = document.getElementById('toggle-link');
 const formTitle = document.getElementById('form-title');
+const nameFieldContainer = document.getElementById('name-field-container');
+const toggleText = document.getElementById('toggle-text');
+const submitButton = document.getElementById('submit-button');
+const btnText = submitButton.querySelector('.btn-text');
+const btnSpinner = submitButton.querySelector('.btn-spinner');
+
+// --- ESTADO DEL FORMULARIO ---
 let isRegistering = false;
 
-// Comprobar si el usuario ya está logueado
+// --- VERIFICACIÓN DE SESIÓN ACTIVA ---
 auth.onAuthStateChanged(user => {
     if (user) {
-        // Si hay un usuario, lo redirigimos al dashboard
         window.location.href = 'dashboard.html';
     }
 });
 
+// --- FUNCIÓN PARA MOSTRAR ESTADO DE CARGA ---
+const setLoading = (isLoading) => {
+    if (isLoading) {
+        submitButton.disabled = true;
+        btnText.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+    } else {
+        submitButton.disabled = false;
+        btnText.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+    }
+};
 
-// Manejar el envío del formulario
-loginForm.addEventListener('submit', async (e) => {
+// --- MANEJO DEL ENVÍO DEL FORMULARIO ---
+authForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = loginForm.email.value;
-    const password = loginForm.password.value;
-    const submitButton = loginForm.querySelector('button[type="submit"]');
+    const email = authForm.email.value;
+    const password = authForm.password.value;
+    const name = authForm.name.value;
+
+    setLoading(true);
 
     try {
         if (isRegistering) {
             // --- MODO REGISTRO ---
-            await auth.createUserWithEmailAndPassword(email, password);
-            Swal.fire({
-                icon: 'success',
-                title: '¡Registro exitoso!',
-                text: 'Ahora serás redirigido al inventario.',
-                timer: 2000,
-                showConfirmButton: false
+            if (!name) {
+                throw { code: 'auth/missing-name', message: 'Por favor, introduce tu nombre.' };
+            }
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            // Actualizar perfil de usuario con su nombre
+            await userCredential.user.updateProfile({ displayName: name });
+            // Opcional: Guardar usuario en una colección de Firestore
+            await db.collection('users').doc(userCredential.user.uid).set({
+                name: name,
+                email: email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
+            Swal.fire({ icon: 'success', title: '¡Registro exitoso!', text: 'Serás redirigido en un momento.', timer: 2000, showConfirmButton: false });
         } else {
             // --- MODO LOGIN ---
             await auth.signInWithEmailAndPassword(email, password);
         }
-        // La redirección ocurrirá automáticamente gracias a onAuthStateChanged
     } catch (error) {
-        // Manejar errores de Firebase
         let message = 'Ocurrió un error inesperado.';
         switch (error.code) {
-            case 'auth/user-not-found':
-                message = 'No se encontró un usuario con ese correo electrónico.';
-                break;
-            case 'auth/wrong-password':
-                message = 'La contraseña es incorrecta.';
-                break;
-            case 'auth/email-already-in-use':
-                message = 'El correo electrónico ya está registrado.';
-                break;
-            case 'auth/weak-password':
-                message = 'La contraseña debe tener al menos 6 caracteres.';
-                break;
+            case 'auth/missing-name': message = error.message; break;
+            case 'auth/user-not-found': message = 'No se encontró un usuario con ese correo.'; break;
+            case 'auth/wrong-password': message = 'La contraseña es incorrecta.'; break;
+            case 'auth/email-already-in-use': message = 'El correo electrónico ya está registrado.'; break;
+            case 'auth/weak-password': message = 'La contraseña debe tener al menos 6 caracteres.'; break;
+            case 'auth/invalid-email': message = 'El formato del correo electrónico no es válido.'; break;
         }
-        Swal.fire({
-            icon: 'error',
-            title: 'Error de autenticación',
-            text: message
-        });
+        Swal.fire({ icon: 'error', title: 'Error de Autenticación', text: message });
+        setLoading(false);
     }
+    // No necesitamos setLoading(false) en caso de éxito porque onAuthStateChanged redirigirá la página.
 });
 
-// Cambiar entre modo Login y Registro
-toggleRegisterLink.addEventListener('click', (e) => {
+// --- CAMBIAR ENTRE LOGIN Y REGISTRO ---
+toggleLink.addEventListener('click', (e) => {
     e.preventDefault();
     isRegistering = !isRegistering;
-    
-    const submitButton = loginForm.querySelector('button[type="submit"]');
+    authForm.reset();
 
     if (isRegistering) {
         formTitle.innerText = 'Crear Nueva Cuenta';
-        submitButton.innerText = 'Registrarse';
-        toggleRegisterLink.innerHTML = '¿Ya tienes una cuenta? <strong>Inicia sesión</strong>';
+        btnText.innerText = 'Registrarse';
+        toggleText.innerText = '¿Ya tienes una cuenta?';
+        toggleLink.innerText = 'Inicia sesión';
+        nameFieldContainer.classList.remove('hidden');
     } else {
         formTitle.innerText = 'Iniciar Sesión';
-        submitButton.innerText = 'Acceder';
-        toggleRegisterLink.innerHTML = '¿No tienes una cuenta? <strong>Regístrate aquí</strong>';
+        btnText.innerText = 'Acceder';
+        toggleText.innerText = '¿No tienes una cuenta?';
+        toggleLink.innerText = 'Regístrate aquí';
+        nameFieldContainer.classList.add('hidden');
     }
 });

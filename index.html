@@ -1,43 +1,81 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-gray-100">
+<html lang="es" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - InvManager</title>
+    <title>Bienvenido a InvManager</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Configuración de Tailwind con el nuevo sistema de diseño
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand': {
+                            'light': '#3b82f6',
+                            'DEFAULT': '#2563eb',
+                            'dark': '#1d4ed8',
+                        },
+                        'slate': { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .content-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .form-container { transition: height 0.3s ease-in-out; }
+    </style>
 </head>
-<body class="flex items-center justify-center h-screen bg-slate-100">
+<body class="flex items-center justify-center h-screen bg-slate-100 font-sans antialiased p-4">
 
-    <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+    <div class="w-full max-w-md bg-white p-8 rounded-xl border border-slate-200 content-fade-in">
         <div class="flex justify-center mb-6">
             <div class="flex items-center">
-                <svg class="h-10 w-10 text-blue-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+                <svg class="h-10 w-10 text-brand mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
                 <span class="text-3xl font-bold text-slate-800">InvManager</span>
             </div>
         </div>
         
-        <h2 id="form-title" class="text-2xl font-bold text-center text-gray-800 mb-6">Iniciar Sesión</h2>
+        <h2 id="form-title" class="text-2xl font-bold text-center text-slate-800 mb-6 transition-all duration-300">Iniciar Sesión</h2>
 
-        <form id="login-form" class="space-y-6">
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-                <input type="email" id="email" name="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        <form id="auth-form" class="space-y-6">
+            <div id="name-field-container" class="hidden transition-all duration-300">
+                <label for="name" class="block text-sm font-medium text-slate-600">Nombre Completo</label>
+                <input type="text" id="name" name="name" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand focus:border-brand">
             </div>
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-                <input type="password" id="password" name="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <label for="email" class="block text-sm font-medium text-slate-600">Correo Electrónico</label>
+                <input type="email" id="email" name="email" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand focus:border-brand">
             </div>
             <div>
-                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Acceder
+                <label for="password" class="block text-sm font-medium text-slate-600">Contraseña</label>
+                <input type="password" id="password" name="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand focus:border-brand">
+            </div>
+            <div>
+                <button type="submit" id="submit-button" class="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-brand hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transition-all duration-200 disabled:opacity-75 disabled:cursor-not-allowed">
+                    <span class="btn-text">Acceder</span>
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden btn-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                 </button>
             </div>
         </form>
 
-        <p class="mt-6 text-center text-sm text-gray-600">
-            ¿No tienes una cuenta? 
-            <a href="#" id="toggle-register" class="font-medium text-blue-600 hover:text-blue-500">
+        <p class="mt-6 text-center text-sm text-slate-600">
+            <span id="toggle-text">¿No tienes una cuenta?</span>
+            <a href="#" id="toggle-link" class="font-semibold text-brand hover:text-brand-dark transition-colors duration-200">
                 Regístrate aquí
             </a>
         </p>
