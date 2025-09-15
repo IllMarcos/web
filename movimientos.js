@@ -13,10 +13,19 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// --- GUARDIÁN DE AUTENTICACIÓN ---
+firebase.auth().onAuthStateChanged(user => {
+    if (!user) {
+        // Si no hay usuario, redirigir al login.
+        window.location.href = 'index.html';
+    }
+});
+
 // --- REFERENCIAS A ELEMENTOS DEL DOM ---
 const movimientoForm = document.getElementById('form-movimiento');
 const selectorProducto = document.getElementById('producto');
 const tablaMovimientos = document.getElementById('tabla-movimientos');
+
 
 // --- CARGAR PRODUCTOS EN EL SELECTOR ---
 const cargarProductos = async () => {
@@ -125,3 +134,17 @@ const mobileMenuButton = document.getElementById('mobile-menu-button');
 mobileMenuButton.addEventListener('click', () => {
     sidebar.classList.toggle('-translate-x-full');
 });
+
+// --- LÓGICA PARA CERRAR SESIÓN ---
+const logoutButton = document.getElementById('logout-btn');
+if(logoutButton) {
+    logoutButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+            await firebase.auth().signOut();
+            // El guardián de autenticación se encargará de redirigir
+        } catch (error) {
+            console.error('Error al cerrar sesión: ', error);
+        }
+    });
+}
