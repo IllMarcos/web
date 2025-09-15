@@ -18,25 +18,43 @@ const productForm = document.getElementById('form-producto');
 const inventoryTable = document.getElementById('tabla-inventario');
 const formTitle = document.getElementById('form-title');
 const saveButton = document.getElementById('btn-save');
-const searchInput = document.getElementById('search-input'); // <-- Nuevo elemento
+const searchInput = document.getElementById('search-input');
+// *** NUEVOS ELEMENTOS PARA PAGINACIÓN ***
+const prevPageBtn = document.getElementById('prev-page-btn');
+const nextPageBtn = document.getElementById('next-page-btn');
+const pageInfo = document.getElementById('page-info');
 
 // --- ESTADO DE LA APLICACIÓN ---
 let editMode = false;
 let idToEdit = '';
-let allProducts = []; // <-- Nuevo: Array para guardar todos los productos
+let allProducts = [];
+let filteredProducts = []; // Para guardar los productos filtrados por la búsqueda
+// *** NUEVAS VARIABLES DE ESTADO PARA PAGINACIÓN ***
+let currentPage = 1;
+const rowsPerPage = 10; // Puedes cambiar este número
 
-// --- FUNCIÓN PARA RENDERIZAR LA TABLA (VERSIÓN RESPONSIVE) ---
-const renderTable = (products) => {
+// --- FUNCIÓN PARA RENDERIZAR LA TABLA (AHORA CON PAGINACIÓN) ---
+const renderTable = () => {
     inventoryTable.innerHTML = '';
-    if (products.length === 0) {
-        inventoryTable.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No se encontraron productos.</td></tr>`;
-        return;
-    }
-    products.forEach(product => {
-        const row = document.createElement('tr');
-        // Clases para la transición a formato de tarjeta en móvil
-        row.className = 'border-b border-gray-200 md:table-row flex flex-col mb-4 md:mb-0';
+    
+    // Calcula el total de páginas basado en los productos filtrados
+    const totalPages = Math.ceil(filteredProducts.length / rowsPerPage);
+    currentPage = Math.min(currentPage, totalPages) || 1;
 
+    // Corta el array para obtener solo los productos de la página actual
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const paginatedProducts = filteredProducts.slice(start, end);
+
+    if (paginatedProducts.length === 0 && allProducts.length > 0) {
+        inventoryTable.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No se encontraron productos con ese filtro.</td></tr>`;
+    } else if (allProducts.length === 0) {
+        inventoryTable.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Aún no hay productos.</td></tr>`;
+    }
+
+    paginatedProducts.forEach(product => {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-200 md:table-row flex flex-col mb-4 md:mb-0';
         row.innerHTML = `
             <td class="p-3 md:table-cell"><span class="md:hidden font-bold pr-2">Código:</span>${product.data.codigo}</td>
             <td class="p-3 md:table-cell"><span class="md:hidden font-bold pr-2">Nombre:</span>${product.data.nombre}</td>
@@ -48,25 +66,51 @@ const renderTable = (products) => {
         `;
         inventoryTable.appendChild(row);
     });
+
+    // Actualiza la información y el estado de los botones de paginación
+    pageInfo.textContent = `Página ${currentPage} de ${totalPages || 1}`;
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
 };
+
 // --- LÓGICA PARA LEER PRODUCTOS Y BUSCAR ---
 db.collection('productos').orderBy('nombre', 'asc').onSnapshot((snapshot) => {
     allProducts = snapshot.docs.map(doc => ({ id: doc.id, data: doc.data() }));
-    renderTable(allProducts); // Renderiza la tabla completa la primera vez
+    // Cuando los datos cambian, aplica el filtro actual y renderiza
+    filterAndRender();
 });
 
-searchInput.addEventListener('keyup', () => {
+const filterAndRender = () => {
     const searchTerm = searchInput.value.toLowerCase();
-    const filteredProducts = allProducts.filter(product => {
+    filteredProducts = allProducts.filter(product => {
         const nombre = product.data.nombre.toLowerCase();
         const codigo = product.data.codigo.toLowerCase();
         return nombre.includes(searchTerm) || codigo.includes(searchTerm);
     });
-    renderTable(filteredProducts);
+    currentPage = 1; // Resetea a la primera página con cada nueva búsqueda
+    renderTable();
+};
+
+searchInput.addEventListener('keyup', filterAndRender);
+
+// *** NUEVOS EVENT LISTENERS PARA PAGINACIÓN ***
+prevPageBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+    }
+});
+
+nextPageBtn.addEventListener('click', () => {
+    const totalPages = Math.ceil(filteredProducts.length / rowsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+    }
 });
 
 
-// --- LÓGICA PARA CREAR Y EDITAR (Manejador del Formulario) ---
+// --- LÓGICA PARA CREAR Y EDITAR (Sin cambios, se mantiene igual) ---
 productForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const codigo = productForm['codigo'].value;
@@ -115,7 +159,7 @@ productForm.addEventListener('submit', async (e) => {
     productForm['codigo'].focus();
 });
 
-// --- LÓGICA PARA CLICS EN BOTONES DE LA TABLA (Editar y Eliminar) ---
+// --- LÓGICA PARA CLICS EN BOTONES DE LA TABLA (Sin cambios, se mantiene igual) ---
 inventoryTable.addEventListener('click', async (e) => {
     if (e.target.classList.contains('btn-eliminar')) {
         const id = e.target.dataset.id;
@@ -158,7 +202,7 @@ inventoryTable.addEventListener('click', async (e) => {
     }
 });
 
-// --- LÓGICA PARA EL MENÚ RESPONSIVE ---
+// --- LÓGICA PARA EL MENÚ RESPONSIVE (Sin cambios, se mantiene igual) ---
 const sidebar = document.getElementById('sidebar');
 const mobileMenuButton = document.getElementById('mobile-menu-button');
 
