@@ -1,12 +1,12 @@
 // USA TUS CREDENCIALES DE FIREBASE
 const firebaseConfig = {
-  apiKey: "AIzaSyD9s36TSYt4gr3RI3JoAdCdKuNN0d6c5hw",
-  authDomain: "miinventario-9ede6.firebaseapp.com",
-  projectId: "miinventario-9ede6",
-  storageBucket: "miinventario-9ede6.firebasestorage.app",
-  messagingSenderId: "1014375007767",
-  appId: "1:1014375007767:web:81acf1536fa301f119be52",
-  measurementId: "G-N9DNVDVNYP"
+  apiKey: "AIzaSyDoHcb-o76loZISfEaVGWJDIUERUFLItcY",
+  authDomain: "invmanager-c65e5.firebaseapp.com",
+  projectId: "invmanager-c65e5",
+  storageBucket: "invmanager-c65e5.firebasestorage.app",
+  messagingSenderId: "1071016735940",
+  appId: "1:1071016735940:web:9731e5c64eb6564a318591",
+  measurementId: "G-CH38NYWBTP"
 };
 
 // Inicializar Firebase

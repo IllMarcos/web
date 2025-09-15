@@ -1,12 +1,12 @@
 // USA TUS CREDENCIALES DE FIREBASE
 const firebaseConfig = {
-  apiKey: "AIzaSyD9s36TSYt4gr3RI3JoAdCdKuNN0d6c5hw",
-  authDomain: "miinventario-9ede6.firebaseapp.com",
-  projectId: "miinventario-9ede6",
-  storageBucket: "miinventario-9ede6.firebasestorage.app",
-  messagingSenderId: "1014375007767",
-  appId: "1:1014375007767:web:81acf1536fa301f119be52",
-  measurementId: "G-N9DNVDVNYP"
+  apiKey: "AIzaSyDoHcb-o76loZISfEaVGWJDIUERUFLItcY",
+  authDomain: "invmanager-c65e5.firebaseapp.com",
+  projectId: "invmanager-c65e5",
+  storageBucket: "invmanager-c65e5.firebasestorage.app",
+  messagingSenderId: "1071016735940",
+  appId: "1:1071016735940:web:9731e5c64eb6564a318591",
+  measurementId: "G-CH38NYWBTP"
 };
 
 // Inicializar Firebase
@@ -14,72 +14,38 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// --- REFERENCIAS AL DOM ---
-const authForm = document.getElementById('auth-form');
-const toggleLink = document.getElementById('toggle-link');
-const formTitle = document.getElementById('form-title');
-const nameFieldContainer = document.getElementById('name-field-container');
-const toggleText = document.getElementById('toggle-text');
-const submitButton = document.getElementById('submit-button');
-const btnText = submitButton.querySelector('.btn-text');
-const btnSpinner = submitButton.querySelector('.btn-spinner');
-
-// --- ESTADO DEL FORMULARIO ---
-let isRegistering = false;
-
 // --- VERIFICACIÓN DE SESIÓN ACTIVA ---
 auth.onAuthStateChanged(user => {
-    if (user) {
+    // Si el usuario está autenticado y NO está en el dashboard, lo redirigimos.
+    if (user && window.location.pathname.indexOf('dashboard.html') === -1) {
         window.location.href = 'dashboard.html';
     }
 });
 
-// --- FUNCIÓN PARA MOSTRAR ESTADO DE CARGA ---
-const setLoading = (isLoading) => {
-    if (isLoading) {
-        submitButton.disabled = true;
-        btnText.classList.add('hidden');
-        btnSpinner.classList.remove('hidden');
-    } else {
-        submitButton.disabled = false;
-        btnText.classList.remove('hidden');
-        btnSpinner.classList.add('hidden');
-    }
-};
+// --- LÓGICA EJECUTADA CUANDO EL DOM ESTÁ LISTO ---
+document.addEventListener('DOMContentLoaded', () => {
 
-// --- MANEJO DEL ENVÍO DEL FORMULARIO ---
-authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = authForm.email.value;
-    const password = authForm.password.value;
-    const name = authForm.name.value;
+    const submitButton = document.getElementById('submit-button');
+    const btnText = submitButton.querySelector('.btn-text');
+    const btnSpinner = submitButton.querySelector('.btn-spinner');
 
-    setLoading(true);
-
-    try {
-        if (isRegistering) {
-            // --- MODO REGISTRO ---
-            if (!name) {
-                throw { code: 'auth/missing-name', message: 'Por favor, introduce tu nombre.' };
-            }
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-            // Actualizar perfil de usuario con su nombre
-            await userCredential.user.updateProfile({ displayName: name });
-            // Opcional: Guardar usuario en una colección de Firestore
-            await db.collection('users').doc(userCredential.user.uid).set({
-                name: name,
-                email: email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            Swal.fire({ icon: 'success', title: '¡Registro exitoso!', text: 'Serás redirigido en un momento.', timer: 2000, showConfirmButton: false });
+    // --- FUNCIÓN PARA MOSTRAR ESTADO DE CARGA ---
+    const setLoading = (isLoading) => {
+        if (isLoading) {
+            submitButton.disabled = true;
+            btnText.classList.add('hidden');
+            btnSpinner.classList.remove('hidden');
         } else {
-            // --- MODO LOGIN ---
-            await auth.signInWithEmailAndPassword(email, password);
+            submitButton.disabled = false;
+            btnText.classList.remove('hidden');
+            btnSpinner.classList.add('hidden');
         }
-    } catch (error) {
+    };
+
+    // --- MANEJO DE ERRORES CENTRALIZADO ---
+    const handleAuthError = (error) => {
         let message = 'Ocurrió un error inesperado.';
         switch (error.code) {
-            case 'auth/missing-name': message = error.message; break;
             case 'auth/user-not-found': message = 'No se encontró un usuario con ese correo.'; break;
             case 'auth/wrong-password': message = 'La contraseña es incorrecta.'; break;
             case 'auth/email-already-in-use': message = 'El correo electrónico ya está registrado.'; break;
@@ -87,28 +53,56 @@ authForm.addEventListener('submit', async (e) => {
             case 'auth/invalid-email': message = 'El formato del correo electrónico no es válido.'; break;
         }
         Swal.fire({ icon: 'error', title: 'Error de Autenticación', text: message });
-        setLoading(false);
+    };
+
+    // --- LÓGICA PARA EL FORMULARIO DE LOGIN ---
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+            setLoading(true);
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                // onAuthStateChanged se encargará de redirigir
+            } catch (error) {
+                handleAuthError(error);
+                setLoading(false);
+            }
+        });
     }
-    // No necesitamos setLoading(false) en caso de éxito porque onAuthStateChanged redirigirá la página.
-});
 
-// --- CAMBIAR ENTRE LOGIN Y REGISTRO ---
-toggleLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    isRegistering = !isRegistering;
-    authForm.reset();
+    // --- LÓGICA PARA EL FORMULARIO DE REGISTRO ---
+    const registerForm = document.getElementById('register-form');
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = registerForm.name.value;
+            const email = registerForm.email.value;
+            const password = registerForm.password.value;
+            const confirmPassword = registerForm['confirm-password'].value;
 
-    if (isRegistering) {
-        formTitle.innerText = 'Crear Nueva Cuenta';
-        btnText.innerText = 'Registrarse';
-        toggleText.innerText = '¿Ya tienes una cuenta?';
-        toggleLink.innerText = 'Inicia sesión';
-        nameFieldContainer.classList.remove('hidden');
-    } else {
-        formTitle.innerText = 'Iniciar Sesión';
-        btnText.innerText = 'Acceder';
-        toggleText.innerText = '¿No tienes una cuenta?';
-        toggleLink.innerText = 'Regístrate aquí';
-        nameFieldContainer.classList.add('hidden');
+            if (password !== confirmPassword) {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Las contraseñas no coinciden.' });
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                await userCredential.user.updateProfile({ displayName: name });
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    name: name,
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                Swal.fire({ icon: 'success', title: '¡Registro exitoso!', text: 'Serás redirigido en un momento.', timer: 2000, showConfirmButton: false });
+            } catch (error) {
+                handleAuthError(error);
+                setLoading(false);
+            }
+        });
     }
 });
