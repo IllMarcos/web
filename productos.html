@@ -16,15 +16,9 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        'sans': ['Inter', 'sans-serif'],
-                    },
+                    fontFamily: { 'sans': ['Inter', 'sans-serif'] },
                     colors: {
-                        'brand': {
-                            'light': '#3b82f6',
-                            'DEFAULT': '#2563eb',
-                            'dark': '#1d4ed8',
-                        },
+                        'brand': { 'light': '#3b82f6', 'DEFAULT': '#2563eb', 'dark': '#1d4ed8' },
                         'slate': { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
                     }
                 }
@@ -39,8 +33,8 @@
 <body class="h-full font-sans antialiased">
 
 <div class="relative min-h-screen md:flex">
-    <aside id="sidebar" class="bg-slate-900 text-slate-400 w-64 p-4 flex flex-col flex-shrink-0 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-20">
-        <div>
+    <aside id="sidebar" class="bg-slate-900 text-slate-400 w-64 p-4 flex flex-col flex-shrink-0 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-20 h-screen">
+        <div class="flex-1 overflow-y-auto">
             <div class="flex items-center mb-12 px-2">
                 <svg class="h-8 w-8 text-brand mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
                 <span class="text-xl font-bold text-slate-100">InvManager</span>
@@ -60,7 +54,7 @@
                 </a>
             </nav>
         </div>
-        <div class="pt-4 mt-auto border-t border-slate-800">
+        <div class="flex-shrink-0 pt-4 border-t border-slate-800">
             <a href="#" id="logout-btn" class="flex items-center py-2.5 px-4 rounded-lg hover:bg-slate-800 hover:text-white transition-all duration-200">
                 <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
                 Cerrar Sesión
