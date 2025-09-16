@@ -13,10 +13,12 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// --- GUARDIÁN DE AUTENTICACIÓN ---
+// --- GUARDIÁN DE AUTENTICACIÓN Y SALUDO ---
 firebase.auth().onAuthStateChanged(user => {
-    if (!user) {
-        // Si no hay usuario, redirigir al login.
+    if (user) {
+        const welcomeMessage = document.getElementById('welcome-message');
+        welcomeMessage.innerText = `¡Hola, ${user.displayName || 'Usuario'}!`;
+    } else {
         window.location.href = 'index.html';
     }
 });
@@ -25,108 +27,136 @@ firebase.auth().onAuthStateChanged(user => {
 const totalProductosEl = document.getElementById('total-productos');
 const bajoStockEl = document.getElementById('bajo-stock');
 const totalStockValorEl = document.getElementById('total-stock-valor');
+const recentActivityList = document.getElementById('recent-activity-list');
 
-// --- INSTANCIAS DE GRÁFICOS (para poder destruirlas y actualizarlas) ---
-let masStockChartInstance = null;
-let menosStockChartInstance = null;
+// --- INSTANCIAS DE GRÁFICOS ---
+let categoryChartInstance = null;
+let menosStockChartInstance = null; // Instancia para la nueva gráfica
 
-
-// Escuchamos cambios en la colección de productos para actualizar todo
+// --- ACTUALIZAR DATOS DE PRODUCTOS (WIDGETS Y GRÁFICOS) ---
 db.collection('productos').onSnapshot(snapshot => {
-    const productos = [];
-    snapshot.forEach(doc => {
-        productos.push({ id: doc.id, ...doc.data() });
-    });
+    const productos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // --- 1. ACTUALIZAR WIDGETS ---
-    const totalProductos = productos.length;
-    const productosBajoStock = productos.filter(p => p.stock <= 10).length;
-    const valorTotalStock = productos.reduce((sum, p) => sum + p.stock, 0);
+    // 1. Actualizar Widgets
+    totalProductosEl.innerText = productos.length;
+    bajoStockEl.innerText = productos.filter(p => p.stock <= 10).length;
+    totalStockValorEl.innerText = productos.reduce((sum, p) => sum + p.stock, 0);
 
-    totalProductosEl.innerText = totalProductos;
-    bajoStockEl.innerText = productosBajoStock;
-    totalStockValorEl.innerText = valorTotalStock;
-
-    // --- 2. ACTUALIZAR GRÁFICOS ---
-    actualizarGraficos(productos);
+    // 2. Actualizar Gráficos
+    actualizarGraficoCategorias(productos);
+    actualizarGraficoMenosStock(productos); // Llamada a la nueva función
 });
 
-// --- FUNCIÓN PARA CREAR Y ACTUALIZAR GRÁFICOS ---
-const actualizarGraficos = (productos) => {
-    // --- GRÁFICO 1: TOP 5 CON MÁS STOCK ---
-    const ctxMasStock = document.getElementById('masStockChart').getContext('2d');
-    const productosMasStock = [...productos].sort((a, b) => b.stock - a.stock).slice(0, 5);
+// --- ACTUALIZAR DATOS DE MOVIMIENTOS (ACTIVIDAD RECIENTE) ---
+db.collection('movimientos').orderBy('fecha', 'desc').limit(5).onSnapshot(snapshot => {
+    recentActivityList.innerHTML = '';
+    if (snapshot.empty) {
+        recentActivityList.innerHTML = `<p class="text-center text-slate-500 mt-4">Aún no hay movimientos registrados.</p>`;
+        return;
+    }
+
+    snapshot.forEach(doc => {
+        const mov = doc.data();
+        const fecha = mov.fecha ? new Date(mov.fecha.seconds * 1000).toLocaleDateString('es-ES') : '';
+        const esEntrada = mov.tipo === 'Entrada';
+
+        const itemHTML = `
+            <div class="flex items-center p-2 rounded-lg hover:bg-slate-50">
+                <div class="mr-3 p-2 rounded-full ${esEntrada ? 'bg-green-100' : 'bg-red-100'}">
+                    <svg class="h-5 w-5 ${esEntrada ? 'text-green-600' : 'bg-red-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        ${esEntrada 
+                            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />' 
+                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />'
+                        }
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="font-semibold text-slate-800 text-sm">${mov.productoNombre}</p>
+                    <p class="text-xs text-slate-500">${mov.responsable} registró una ${mov.tipo.toLowerCase()} de ${mov.cantidad} unidad(es).</p>
+                </div>
+                <div class="text-right text-xs text-slate-400">
+                    ${fecha}
+                </div>
+            </div>
+        `;
+        recentActivityList.innerHTML += itemHTML;
+    });
+});
+
+// --- FUNCIÓN PARA GRÁFICO DE CATEGORÍAS ---
+const actualizarGraficoCategorias = (productos) => {
+    const ctx = document.getElementById('categoryStockChart').getContext('2d');
     
-    const dataMasStock = {
-        labels: productosMasStock.map(p => p.nombre),
+    const stockPorCategoria = productos.reduce((acc, p) => {
+        const categoria = p.categoria || 'Sin Categoría';
+        acc[categoria] = (acc[categoria] || 0) + p.stock;
+        return acc;
+    }, {});
+
+    const data = {
+        labels: Object.keys(stockPorCategoria),
         datasets: [{
-            label: 'Stock',
-            data: productosMasStock.map(p => p.stock),
-            backgroundColor: ['#4F46E5', '#6366F1', '#818CF8', '#A5B4FC', '#C7D2FE'],
+            data: Object.values(stockPorCategoria),
+            backgroundColor: ['#6366F1', '#F59E0B', '#10B981', '#EF4444', '#3B82F6'],
             hoverOffset: 4
         }]
     };
 
-    if (masStockChartInstance) {
-        masStockChartInstance.destroy();
-    }
-    masStockChartInstance = new Chart(ctxMasStock, {
+    if (categoryChartInstance) categoryChartInstance.destroy();
+    categoryChartInstance = new Chart(ctx, {
         type: 'doughnut',
-        data: dataMasStock,
-        options: { responsive: true, maintainAspectRatio: false }
+        data: data,
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
+};
 
-
-    // --- GRÁFICO 2: TOP 5 CON MENOS STOCK ---
-    const ctxMenosStock = document.getElementById('menosStockChart').getContext('2d');
+// --- FUNCIÓN PARA GRÁFICO DE BAJO STOCK ---
+const actualizarGraficoMenosStock = (productos) => {
+    const ctx = document.getElementById('menosStockChart').getContext('2d');
     const productosMenosStock = [...productos].sort((a, b) => a.stock - b.stock).slice(0, 5);
 
-    const dataMenosStock = {
+    const data = {
         labels: productosMenosStock.map(p => p.nombre),
         datasets: [{
             label: 'Stock Actual',
             data: productosMenosStock.map(p => p.stock),
-            backgroundColor: '#EF4444',
-            borderColor: '#DC2626',
+            backgroundColor: '#F87171',
+            borderColor: '#EF4444',
             borderWidth: 1
         }]
     };
     
-    if (menosStockChartInstance) {
-        menosStockChartInstance.destroy();
-    }
-    menosStockChartInstance = new Chart(ctxMenosStock, {
+    if (menosStockChartInstance) menosStockChartInstance.destroy();
+    menosStockChartInstance = new Chart(ctx, {
         type: 'bar',
-        data: dataMenosStock,
+        data: data,
         options: {
-            indexAxis: 'y', // Hace el gráfico de barras horizontal, mejor para nombres largos
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                x: { beginAtZero: true }
-            }
+            scales: { x: { beginAtZero: true } },
+            plugins: { legend: { display: false } }
         }
     });
 };
 
-// --- LÓGICA PARA EL MENÚ RESPONSIVE ---
+// --- LÓGICA DEL MENÚ Y CIERRE DE SESIÓN ---
 const sidebar = document.getElementById('sidebar');
 const mobileMenuButton = document.getElementById('mobile-menu-button');
+mobileMenuButton.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
 
-mobileMenuButton.addEventListener('click', () => {
-    sidebar.classList.toggle('-translate-x-full');
-});
-
-// --- LÓGICA PARA CERRAR SESIÓN ---
 const logoutButton = document.getElementById('logout-btn');
 if(logoutButton) {
-    logoutButton.addEventListener('click', async (e) => {
+    logoutButton.addEventListener('click', (e) => {
         e.preventDefault();
-        try {
-            await firebase.auth().signOut();
-            // El guardián de autenticación se encargará de redirigir
-        } catch (error) {
-            console.error('Error al cerrar sesión: ', error);
-        }
+        Swal.fire({
+            title: '¿Estás seguro?', text: "Tu sesión actual se cerrará.", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, ¡cerrar sesión!', cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try { await firebase.auth().signOut(); } catch (error) { console.error('Error al cerrar sesión: ', error); }
+            }
+        });
     });
 }

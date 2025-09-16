@@ -6,52 +6,30 @@
     <title>Dashboard | InvManager</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // Configuración de Tailwind con el nuevo sistema de diseño
+        // Configuración de Tailwind
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        'sans': ['Inter', 'sans-serif'],
-                    },
+                    fontFamily: { 'sans': ['Inter', 'sans-serif'] },
                     colors: {
-                        'brand': {
-                            'light': '#3b82f6',
-                            'DEFAULT': '#2563eb',
-                            'dark': '#1d4ed8',
-                        },
-                        'slate': {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            300: '#cbd5e1',
-                            400: '#94a3b8',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#334155',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                        }
+                        'brand': { 'light': '#3b82f6', 'DEFAULT': '#2563eb', 'dark': '#1d4ed8' },
+                        'slate': { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
                     }
                 }
             }
         }
     </script>
     <style>
-        /* Estilo para una animación de entrada suave */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .content-fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .content-fade-in { animation: fadeIn 0.5s ease-out forwards; }
     </style>
 </head>
 <body class="h-full font-sans antialiased">
@@ -95,13 +73,16 @@
         </header>
 
         <main class="p-4 md:p-8 content-fade-in">
-            <h1 class="text-3xl font-bold text-slate-900 mb-8 hidden md:block">Dashboard</h1>
+            <div class="mb-8">
+                <h1 id="welcome-message" class="text-3xl font-bold text-slate-900">Bienvenido</h1>
+                <p class="text-slate-600 mt-1">Aquí tienes un resumen de tu inventario.</p>
+            </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-xl border border-slate-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                     <div class="flex items-center justify-between">
                         <div>
-                            <div class="text-sm font-medium text-slate-500">Total de Productos Únicos</div>
+                            <div class="text-sm font-medium text-slate-500">Total de Productos</div>
                             <div id="total-productos" class="text-3xl font-bold text-slate-900 mt-1">0</div>
                         </div>
                         <div class="bg-blue-100 p-3 rounded-full">
@@ -109,7 +90,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-xl border border-slate-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                     <div class="flex items-center justify-between">
                         <div>
                             <div class="text-sm font-medium text-slate-500">Productos con Bajo Stock (&lt;10)</div>
@@ -120,10 +101,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-xl border border-slate-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                     <div class="flex items-center justify-between">
                         <div>
-                            <div class="text-sm font-medium text-slate-500">Unidades Totales en Stock</div>
+                            <div class="text-sm font-medium text-slate-500">Unidades Totales</div>
                             <div id="total-stock-valor" class="text-3xl font-bold text-slate-900 mt-1">0</div>
                         </div>
                          <div class="bg-green-100 p-3 rounded-full">
@@ -133,15 +114,23 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200">
-                    <h3 class="text-lg font-semibold text-slate-800 mb-4">Top 5 - Productos con Más Stock</h3>
-                    <div class="relative h-64">
-                        <canvas id="masStockChart"></canvas>
+            <div class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Stock por Categoría</h3>
+                        <div class="relative h-72">
+                            <canvas id="categoryStockChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-3 bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                         <h3 class="text-lg font-semibold text-slate-800 mb-4">Actividad Reciente</h3>
+                        <div id="recent-activity-list" class="space-y-3">
+                            </div>
                     </div>
                 </div>
-                <div class="lg:col-span-3 bg-white p-6 rounded-xl border border-slate-200">
-                     <h3 class="text-lg font-semibold text-slate-800 mb-4">Top 5 - Productos con Menos Stock</h3>
+
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-4">Top 5 - Productos con Menos Stock</h3>
                     <div class="relative h-64">
                         <canvas id="menosStockChart"></canvas>
                     </div>
