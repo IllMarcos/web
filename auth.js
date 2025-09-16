@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- LÓGICA PARA EL FORMULARIO DE REGISTRO ---
+    // --- LÓGICA PARA EL FORMULARIO DE REGISTRO (CORREGIDA) ---
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
@@ -92,15 +92,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                // 1. Actualiza el perfil de autenticación del usuario
                 await userCredential.user.updateProfile({ displayName: name });
+
+                // 2. **(LÍNEA CRÍTICA AÑADIDA)** Crea un documento en la colección 'users'
                 await db.collection('users').doc(userCredential.user.uid).set({
                     name: name,
                     email: email,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+
                 Swal.fire({ icon: 'success', title: '¡Registro exitoso!', text: 'Serás redirigido en un momento.', timer: 2000, showConfirmButton: false });
+                
+                // El listener onAuthStateChanged se encargará de la redirección
             } catch (error) {
                 handleAuthError(error);
+            } finally {
                 setLoading(false);
             }
         });

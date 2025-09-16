@@ -16,12 +16,26 @@ const db = firebase.firestore();
 // --- VARIABLES GLOBALES ---
 let currentUser = null;
 
-// --- GUARDIÁN DE AUTENTICACIÓN Y SALUDO ---
+// --- GUARDIÁN DE AUTENTICACIÓN Y SALUDO (CORREGIDO) ---
 firebase.auth().onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
         const welcomeMessage = document.getElementById('welcome-message');
-        welcomeMessage.innerText = `¡Hola, ${user.displayName || 'Usuario'}!`;
+
+        // Se obtiene el nombre desde la base de datos para asegurar que esté siempre actualizado
+        db.collection('users').doc(user.uid).get().then(doc => {
+            if (doc.exists) {
+                // Usar el nombre guardado en la base de datos
+                welcomeMessage.innerText = `¡Hola, ${doc.data().name}!`;
+            } else {
+                // Si no se encuentra, usar el displayName como alternativa
+                welcomeMessage.innerText = `¡Hola, ${user.displayName || 'Usuario'}!`;
+            }
+        }).catch(error => {
+            console.error("Error al obtener datos del usuario:", error);
+            welcomeMessage.innerText = `¡Hola, ${user.displayName || 'Usuario'}!`;
+        });
+
     } else {
         window.location.href = 'index.html';
     }
@@ -38,7 +52,7 @@ const reportModalBackdrop = document.getElementById('report-modal-backdrop');
 const reportModal = document.getElementById('report-modal');
 const reportModalContent = document.getElementById('report-modal-content');
 const closeReportBtn = document.getElementById('close-report-btn');
-const downloadPdfBtn = document.getElementById('download-pdf-btn'); // Botón para descargar PDF
+const downloadPdfBtn = document.getElementById('download-pdf-btn');
 
 let categoryChartInstance = null;
 let menosStockChartInstance = null;
@@ -134,7 +148,6 @@ const cerrarModal = () => {
     reportModalContent.innerHTML = '';
 };
 
-// --- FUNCIÓN PARA DESCARGAR PDF ---
 const descargarPDF = () => {
     const element = document.getElementById('report-modal-content');
     const today = new Date();
@@ -156,7 +169,7 @@ closeReportBtn.addEventListener('click', cerrarModal);
 reportModalBackdrop.addEventListener('click', cerrarModal);
 downloadPdfBtn.addEventListener('click', descargarPDF);
 
-// --- FUNCIONES PARA GRÁFICOS (sin cambios) ---
+// --- FUNCIONES PARA GRÁFICOS ---
 const actualizarGraficoCategorias = (productos) => {
     const ctx = document.getElementById('categoryStockChart').getContext('2d');
     const stockPorCategoria = productos.reduce((acc, p) => { const cat = p.categoria || 'Sin Categoría'; acc[cat] = (acc[cat] || 0) + p.stock; return acc; }, {});
@@ -172,7 +185,7 @@ const actualizarGraficoMenosStock = (productos) => {
     menosStockChartInstance = new Chart(ctx, { type: 'bar', data, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { beginAtZero: true } }, plugins: { legend: { display: false } } } });
 };
 
-// --- LÓGICA DEL MENÚ Y CIERRE DE SESIÓN (sin cambios) ---
+// --- LÓGICA DEL MENÚ Y CIERRE DE SESIÓN ---
 const sidebar = document.getElementById('sidebar');
 const mobileMenuButton = document.getElementById('mobile-menu-button');
 mobileMenuButton.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
