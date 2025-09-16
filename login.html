@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-gray-50">
+<html lang="es" class="h-full">
 <head>
-    <meta charset="UTF--8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión | InvManager</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,57 +18,99 @@
                             'DEFAULT': '#2563eb',
                             'dark': '#1d4ed8',
                         },
+                        'slate': { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
                     }
                 }
             }
         }
     </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .card-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+
+        /* Animación para el texto que rota */
+        .text-fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+        }
+        .text-fade-in {
+            opacity: 1;
+            transition: opacity 0.5s ease-in;
+        }
+    </style>
 </head>
-<body class="h-full font-sans antialiased">
-    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-        <div class="sm:mx-auto sm:w-full sm:max-w-md">
-            <div class="flex items-center justify-center">
-                 <svg class="h-10 w-10 text-brand" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
-                <h1 class="ml-3 text-3xl font-bold text-gray-900">InvManager</h1>
-            </div>
-            <h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Inicia sesión en tu cuenta</h2>
-        </div>
-
-        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
-            <div class="bg-white px-6 py-8 shadow-md rounded-xl">
-                <form id="login-form" class="space-y-6">
-                    <div>
-                        <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Correo Electrónico</label>
-                        <div class="mt-2">
-                            <input id="email" name="email" type="email" autocomplete="email" required class="block w-full rounded-md border-0 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6">
+<body class="h-full font-sans antialiased flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 to-slate-100">
+    <div class="w-full max-w-5xl card-fade-in">
+        <div class="grid grid-cols-1 lg:grid-cols-2 bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="flex flex-col justify-center p-12">
+                <div class="w-full max-w-md mx-auto">
+                    <div class="flex items-center justify-start mb-8">
+                         <svg class="h-10 w-10 text-brand" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+                        <h1 class="ml-3 text-3xl font-bold text-slate-800">InvManager</h1>
+                    </div>
+                    <h2 class="text-left text-3xl font-bold leading-9 tracking-tight text-slate-900 mb-4">¡Hola de nuevo!</h2>
+                    <p class="text-slate-600 mb-8">Inicia sesión para gestionar tu inventario.</p>
+                    <form id="login-form" class="space-y-6">
+                        <div>
+                            <label for="email" class="block text-sm font-medium leading-6 text-slate-600">Correo Electrónico</label>
+                            <div class="mt-2"><input id="email" name="email" type="email" autocomplete="email" required class="block w-full rounded-lg border-slate-300 py-3 px-4 text-slate-900 shadow-sm focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 transition-all duration-200"></div>
                         </div>
-                    </div>
-
-                    <div>
-                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Contraseña</label>
-                        <div class="mt-2">
-                            <input id="password" name="password" type="password" autocomplete="current-password" required class="block w-full rounded-md border-0 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6">
+                        <div>
+                            <label for="password" class="block text-sm font-medium leading-6 text-slate-600">Contraseña</label>
+                            <div class="mt-2"><input id="password" name="password" type="password" autocomplete="current-password" required class="block w-full rounded-lg border-slate-300 py-3 px-4 text-slate-900 shadow-sm focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 transition-all duration-200"></div>
                         </div>
-                    </div>
-
-                    <div>
-                        <button type="submit" id="submit-button" class="flex w-full justify-center rounded-md bg-brand px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-brand-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-75">
-                            <span class="btn-text">Acceder</span>
-                             <svg class="animate-spin ml-3 h-5 w-5 text-white hidden btn-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        </button>
-                    </div>
-                </form>
+                        <div class="pt-4">
+                            <button type="submit" id="submit-button" class="flex w-full justify-center rounded-lg bg-brand px-3 py-3 text-sm font-semibold leading-6 text-white shadow-lg hover:shadow-brand/50 hover:bg-brand-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-75 transition-all duration-300 transform hover:-translate-y-1">
+                                <span class="btn-text">Acceder</span>
+                                <svg class="animate-spin ml-3 h-5 w-5 text-white hidden btn-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            </button>
+                        </div>
+                    </form>
+                    <p class="mt-10 text-center text-sm text-slate-500">
+                        ¿Aún no tienes cuenta? <a href="./register.html" class="font-semibold leading-6 text-brand hover:text-brand-dark">Regístrate aquí</a>
+                    </p>
+                </div>
             </div>
-
-            <p class="mt-10 text-center text-sm text-gray-500">
-                ¿Aún no tienes cuenta?
-                <a href="./register.html" class="font-semibold leading-6 text-brand hover:text-brand-dark">Regístrate aquí</a>
-            </p>
+            <div class="hidden lg:flex flex-col items-center justify-center p-12 bg-slate-900 text-white">
+                 <div id="dynamic-text-container" class="text-center">
+                    <h2 id="dynamic-title" class="text-4xl font-bold leading-tight transition-opacity duration-500">Control total de tu inventario.</h2>
+                    <p id="dynamic-subtitle" class="mt-4 text-lg text-slate-300 max-w-lg transition-opacity duration-500">La solución definitiva para organizar y optimizar tus productos.</p>
+                </div>
+            </div>
         </div>
     </div>
     <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js"></script>
     <script src="./auth.js"></script>
+    <script>
+        const messages = [
+            { title: "Optimiza tu Stock", subtitle: "Evita el exceso de inventario y las roturas de stock con datos precisos." },
+            { title: "Decisiones Inteligentes", subtitle: "Utiliza los reportes para tomar decisiones basadas en datos reales." },
+            { title: "Ahorra Tiempo y Dinero", subtitle: "Reduce el tiempo dedicado a la gestión y minimiza las pérdidas." },
+            { title: "Acceso Desde Cualquier Lugar", subtitle: "Gestiona tu inventario desde tu computadora o dispositivo móvil." },
+            { title: "Todo Bajo Control", subtitle: "Centraliza la información de tus productos en una única plataforma." }
+        ];
+        let messageIndex = 0;
+        const titleEl = document.getElementById('dynamic-title');
+        const subtitleEl = document.getElementById('dynamic-subtitle');
+
+        function changeText() {
+            titleEl.classList.add('text-fade-out');
+            subtitleEl.classList.add('text-fade-out');
+            
+            setTimeout(() => {
+                messageIndex = (messageIndex + 1) % messages.length;
+                titleEl.innerText = messages[messageIndex].title;
+                subtitleEl.innerText = messages[messageIndex].subtitle;
+                titleEl.classList.remove('text-fade-out');
+                subtitleEl.classList.remove('text-fade-out');
+            }, 500); // Coincide con la duración de la transición
+        }
+        setInterval(changeText, 5000); // Cambia el texto cada 5 segundos
+    </script>
 </body>
 </html>
