@@ -30,47 +30,35 @@
         .content-fade-in { animation: fadeIn 0.5s ease-out forwards; }
     </style>
 </head>
-<body class="h-full font-sans antialiased">
+<body class="h-full font-sans antialiased overflow-hidden">
 
-<div class="relative min-h-screen md:flex">
-    <aside id="sidebar" class="bg-slate-900 text-slate-400 w-64 p-4 flex flex-col flex-shrink-0 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-20 h-screen">
+<div class="relative h-screen flex">
+    <aside id="sidebar" class="bg-slate-900 text-slate-400 w-64 p-4 flex flex-col flex-shrink-0 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-20">
         <div class="flex-1 overflow-y-auto">
             <div class="flex items-center mb-12 px-2">
                 <svg class="h-8 w-8 text-brand mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
                 <span class="text-xl font-bold text-slate-100">InvManager</span>
             </div>
             <nav id="sidebar-nav" class="flex flex-col space-y-2">
-                <a href="./dashboard.html" class="flex items-center py-2.5 px-4 rounded-lg hover:bg-slate-800 hover:text-white transition-all duration-200">
-                    <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" /></svg>
-                    Dashboard
-                </a>
-                <a href="./productos.html" class="flex items-center py-2.5 px-4 rounded-lg bg-slate-800 text-white font-semibold transition-all duration-200">
-                    <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
-                    Productos
-                </a>
-                <a href="./movimientos.html" class="flex items-center py-2.5 px-4 rounded-lg hover:bg-slate-800 hover:text-white transition-all duration-200">
-                    <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" /></svg>
-                    Entradas / Salidas
-                </a>
+                <a href="./dashboard.html" class="flex items-center py-2.5 px-4 rounded-lg hover:bg-slate-800 hover:text-white transition-all duration-200">Dashboard</a>
+                <a href="./productos.html" class="flex items-center py-2.5 px-4 rounded-lg bg-slate-800 text-white font-semibold transition-all duration-200">Productos</a>
+                <a href="./movimientos.html" class="flex items-center py-2.5 px-4 rounded-lg hover:bg-slate-800 hover:text-white transition-all duration-200">Entradas / Salidas</a>
             </nav>
         </div>
         <div class="flex-shrink-0 pt-4 border-t border-slate-800">
-            <a href="#" id="logout-btn" class="flex items-center py-2.5 px-4 rounded-lg hover:bg-slate-800 hover:text-white transition-all duration-200">
-                <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
-                Cerrar Sesión
-            </a>
+            <a href="#" id="logout-btn" class="flex items-center py-2.5 px-4 rounded-lg hover:bg-slate-800 hover:text-white transition-all duration-200">Cerrar Sesión</a>
         </div>
     </aside>
 
-    <div class="flex-1">
-        <header class="bg-white/75 backdrop-blur-sm sticky top-0 shadow-sm p-4 flex justify-between items-center md:hidden z-10">
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white/75 backdrop-blur-sm shadow-sm p-4 flex justify-between items-center md:hidden z-10 flex-shrink-0">
             <span class="text-xl font-bold text-slate-800">InvManager</span>
             <button id="mobile-menu-button">
                  <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
             </button>
         </header>
 
-        <main class="p-4 md:p-8 content-fade-in">
+        <main class="p-4 md:p-8 content-fade-in flex-1 overflow-y-auto">
             <h1 class="text-3xl font-bold text-slate-900 mb-8 hidden md:block">Gestión de Productos</h1>
             
             <div id="products-section" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
